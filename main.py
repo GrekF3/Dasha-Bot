@@ -44,7 +44,7 @@ async def CheckTime():
 
 
 async def Notifications():
-    await bot.send_message(539057262, 'Отметься во мне пожалуйста!')
+    await bot.send_message(1464660098, 'Отметься во мне пожалуйста!')
 
 @dp.message_handler(state='*', commands='db')
 @dp.message_handler(Text(equals='db', ignore_case=True), state='*')
