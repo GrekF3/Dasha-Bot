@@ -1,7 +1,6 @@
 import asyncio
 import logging
 from datetime import datetime
-
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram import Bot, Dispatcher, types, executor
 from aiogram.dispatcher import FSMContext
@@ -22,7 +21,8 @@ bot = Bot(token)
 
 dp = Dispatcher(bot, storage=storage)
 
-
+now = datetime.now()
+current_time = now.strftime("%H:%M")
 class Day(StatesGroup):
     new_day = State()
     pars = State()
@@ -30,9 +30,25 @@ class Day(StatesGroup):
     end = State()
 
 
-now = datetime.now()
-current_time = now.strftime("%H:%M")
+async def CheckTime():
+    now = datetime.now()
+    current_time = now.strftime("%H:%M")
+    msg = current_time
+    await bot.send_message(539057262, msg)
+    while True:
+        now = datetime.now()
+        current_time = now.strftime("%H:%M")
+        await asyncio.sleep(2)
+        if current_time == "08:00":
+            await Notifications()
+            break
+        else:
+            pass
 
+
+
+async def Notifications():
+    await bot.send_message(539057262, 'Отметься во мне пожалуйста!')
 
 @dp.message_handler(state='*', commands='db')
 @dp.message_handler(Text(equals='db', ignore_case=True), state='*')
@@ -59,12 +75,6 @@ async def start(message: types.Message):
     await Day.new_day.set()
     await message.answer('Доброе утро!', reply_markup=kp)
 
-async def Notifications():
-    while True:
-        await asyncio.sleep(1)
-        if current_time == '07:00':
-            await bot.send_message('Отметься пожалуйста :(', 'text')
-
 @dp.message_handler(state=Day.new_day)
 async def day(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
@@ -78,6 +88,7 @@ async def day(message: types.Message, state: FSMContext):
         kp.add(btn1)
         await message.reply('Отдыхай, солнышко!', reply_markup=kp)
         await state.finish()
+        await CheckTime()
     elif message.text == 'Статистика 📝':
         cu.execute("SELECT SUM(pars_all), SUM(pars_end), SUM(pars_notend) FROM dasha")
         res = cu.fetchall()
@@ -130,7 +141,7 @@ async def Ender(message: types.Message, state: FSMContext):
         bd.commit()
         await bot.send_message(message.from_user.id, msg)
         await state.finish()
-        await Notifications()
+        await CheckTime()
 
 
 @dp.message_handler(state=Day.end)
@@ -148,7 +159,7 @@ async def Math(message: types.Message, state: FSMContext):
     cu.execute("INSERT INTO dasha VALUES(?,?,?)", (int(pars), int(par), int(data['end'])))
     bd.commit()
     await state.finish()
-    await Notifications()
+    await CheckTime()
 
 
 if __name__ == "__main__":
