@@ -12,7 +12,7 @@ import sqlite3
 bd = sqlite3.connect('parsdasha.db')
 cu = bd.cursor()
 
-token = 'TOKEN'
+token = '5631292267:AAHNm0mJ6mFoc5LgDDPuItjNb3oebml3CRQ'
 
 storage = MemoryStorage()
 
