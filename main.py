@@ -31,10 +31,6 @@ class Day(StatesGroup):
 
 
 async def CheckTime():
-    now = datetime.now()
-    current_time = now.strftime("%H:%M")
-    msg = current_time
-    await bot.send_message(539057262, msg)
     while True:
         now = datetime.now()
         current_time = now.strftime("%H:%M")
