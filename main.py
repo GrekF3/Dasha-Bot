@@ -1,4 +1,6 @@
+import asyncio
 import logging
+from datetime import datetime
 
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram import Bot, Dispatcher, types, executor
@@ -28,6 +30,10 @@ class Day(StatesGroup):
     end = State()
 
 
+now = datetime.now()
+current_time = now.strftime("%H:%M")
+
+
 @dp.message_handler(state='*', commands='db')
 @dp.message_handler(Text(equals='db', ignore_case=True), state='*')
 async def cancel_handler(message: types.Message, state: FSMContext):
@@ -53,6 +59,11 @@ async def start(message: types.Message):
     await Day.new_day.set()
     await message.answer('Доброе утро!', reply_markup=kp)
 
+async def Notifications():
+    while True:
+        await asyncio.sleep(1)
+        if current_time == '07:00':
+            await bot.send_message('Отметься пожалуйста :(', 'text')
 
 @dp.message_handler(state=Day.new_day)
 async def day(message: types.Message, state: FSMContext):
@@ -119,6 +130,7 @@ async def Ender(message: types.Message, state: FSMContext):
         bd.commit()
         await bot.send_message(message.from_user.id, msg)
         await state.finish()
+        await Notifications()
 
 
 @dp.message_handler(state=Day.end)
@@ -136,6 +148,7 @@ async def Math(message: types.Message, state: FSMContext):
     cu.execute("INSERT INTO dasha VALUES(?,?,?)", (int(pars), int(par), int(data['end'])))
     bd.commit()
     await state.finish()
+    await Notifications()
 
 
 if __name__ == "__main__":
