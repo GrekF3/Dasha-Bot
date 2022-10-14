@@ -83,10 +83,7 @@ async def day(message: types.Message, state: FSMContext):
         await message.answer('Умничка!! Хорошего дня тебе ❤️ \nСколько у тебя пар сегодня?')
         await Day.pars.set()
     elif message.text == 'Не пошла в шарагу ❌':
-        kp = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        btn1 = types.KeyboardButton('/start')
-        kp.add(btn1)
-        await message.reply('Отдыхай, солнышко!', reply_markup=kp)
+        await message.reply('Отдыхай, солнышко!')
         await message.answer('Сколько пар у тебя сегодня было?')
         await Day.Ne_Poshla.set()
     elif message.text == 'Статистика 📝':
