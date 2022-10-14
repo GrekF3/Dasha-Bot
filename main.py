@@ -94,14 +94,18 @@ async def day(message: types.Message, state: FSMContext):
         try:
             percent = int(end_pars) / int(all_pars)
             pos = percent * 100
+            def toFixed(numObj, digits=0):
+                return f"{numObj:.{digits}f}"
+
+            pos_res = toFixed(pos)
         except:
-            pos = 'Ты пока не ходила ни на одну пару'
+            pos_res = 'Ты пока не ходила ни на одну пару'
         msg = (
                 '🧡Твоя статистика на данный момент🧡' + '\n' +
                 '📝 Всего пар: ' + str(all_pars) + '\n' +
                 '✅ Ты сходила на: ' + str(end_pars) + '\n' +
                 '❌ Ты пропустила пар: ' + str(not_endpars) + '\n' +
-                '⚠ Процент посещений: ' + str(pos) + '%'
+                '⚠ Процент посещений: ' + str(pos_res) + '%'
         )
         await bot.send_message(message.from_user.id, msg)
 
