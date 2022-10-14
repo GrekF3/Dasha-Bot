@@ -23,10 +23,13 @@ dp = Dispatcher(bot, storage=storage)
 
 now = datetime.now()
 current_time = now.strftime("%H:%M")
+
+
 class Day(StatesGroup):
     new_day = State()
     pars = State()
     all_not = State()
+    Ne_Poshla = State()
     end = State()
 
 
@@ -42,9 +45,9 @@ async def CheckTime():
             pass
 
 
-
 async def Notifications():
     await bot.send_message(1464660098, 'Отметься во мне пожалуйста!')
+
 
 @dp.message_handler(state='*', commands='db')
 @dp.message_handler(Text(equals='db', ignore_case=True), state='*')
@@ -71,6 +74,7 @@ async def start(message: types.Message):
     await Day.new_day.set()
     await message.answer('Доброе утро!', reply_markup=kp)
 
+
 @dp.message_handler(state=Day.new_day)
 async def day(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
@@ -83,8 +87,8 @@ async def day(message: types.Message, state: FSMContext):
         btn1 = types.KeyboardButton('/start')
         kp.add(btn1)
         await message.reply('Отдыхай, солнышко!', reply_markup=kp)
-        await state.finish()
-        await CheckTime()
+        await message.answer('Сколько пар у тебя сегодня было?')
+        await Day.Ne_Poshla.set()
     elif message.text == 'Статистика 📝':
         cu.execute("SELECT SUM(pars_all), SUM(pars_end), SUM(pars_notend) FROM dasha")
         res = cu.fetchall()
@@ -94,6 +98,7 @@ async def day(message: types.Message, state: FSMContext):
         try:
             percent = int(end_pars) / int(all_pars)
             pos = percent * 100
+
             def toFixed(numObj, digits=0):
                 return f"{numObj:.{digits}f}"
 
@@ -158,6 +163,20 @@ async def Math(message: types.Message, state: FSMContext):
                            reply_markup=kp)
     cu.execute("INSERT INTO dasha VALUES(?,?,?)", (int(pars), int(par), int(data['end'])))
     bd.commit()
+    await state.finish()
+    await CheckTime()
+
+
+@dp.message_handler(state=Day.Ne_Poshla)
+async def NePoshla(message: types.Message, state: FSMContext):
+    kp = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    btn1 = types.KeyboardButton('/start')
+    kp.add(btn1)
+    async with state.proxy() as data:
+        data['Ne_Poshla'] = message.text
+    cu.execute("INSERT INTO dasha VALUES(?,?,?)", (int(data['Ne_Poshla']), int(0), int(data['Ne_Poshla'])))
+    bd.commit()
+    await message.reply('Ну и пошли они все нахуй!', reply_markup=kp)
     await state.finish()
     await CheckTime()
 
